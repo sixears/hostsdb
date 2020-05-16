@@ -46,7 +46,7 @@ import Control.DeepSeq  ( NFData )
 -- dhall -------------------------------
 
 import qualified  Dhall  as  D
-import Dhall  ( Interpret( autoWith ), auto, field, record )
+import Dhall  ( FromDhall( autoWith ), auto, field, record )
 
 -- domainnames -------------------------
 
@@ -118,7 +118,7 @@ instance HasSubDomain Domains where
 instance HasINAddr Domains where
   inAddr = lens _inAddr (\ d i → d { _inAddr = i })
 
-instance Interpret Domains where
+instance FromDhall Domains where
   autoWith _ = record $ Domains ⊳ field "sub_domain" auto
                                 ⊵ field "in_addr" auto
 
@@ -144,7 +144,7 @@ instance HasSubDomain Hosts where
 instance HasINAddr Hosts where
   inAddr = domains ∘ inAddr
 
-instance Interpret Hosts where
+instance FromDhall Hosts where
   autoWith _ = record $ Hosts ⊳ field "domains"      auto
                               ⊵ field "hosts"        auto
                               ⊵ field "dns_servers"  (D.list auto)

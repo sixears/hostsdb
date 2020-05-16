@@ -50,7 +50,7 @@ chromeTxt ∷ Text
 chromeTxt = unlines [ " { fqdn = \"chrome.sixears.co.uk.\""
                     , " , ipv4 = \"192.168.0.6\""
                     , " , desc = \"study desktop server\""
-                    , " , mac= [ \"fc:aa:14:87:cc:a2\" ] : Optional Text"
+                    , " , mac= Some \"fc:aa:14:87:cc:a2\""
                     , " , comments = [] : List Text"
                     , " }"
                     ]

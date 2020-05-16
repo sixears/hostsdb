@@ -49,7 +49,6 @@ import Data.MonoTraversable  ( otoList )
 
 import Data.MoreUnicode.Lens   ( (⊣) )
 import Data.MoreUnicode.Monad  ( (≫) )
-import Data.MoreUnicode.Tasty  ( (≟) )
 
 -- tasty -------------------------------
 
@@ -58,6 +57,10 @@ import Test.Tasty  ( TestTree, defaultMain, testGroup )
 -- tasty-hunit -------------------------
 
 import Test.Tasty.HUnit  ( testCase )
+
+-- tasty-plus --------------------------
+
+import TastyPlus  ( (≟) )
 
 -- text --------------------------------
 
@@ -120,20 +123,20 @@ hostsTestText =
           , ", hosts = [ { fqdn = \"chrome.sixears.co.uk.\""
           , "            , ipv4 = \"192.168.0.6\""
           , "            , desc = \"study desktop server\""
-          , "            , mac= [ \"fc:aa:14:87:cc:a2\" ] : Optional Text"
+          , "            , mac= Some \"fc:aa:14:87:cc:a2\""
           , "            , comments = [] : List Text"
           , "            }"
           , "          , { fqdn = \"winxp.sixears.co.uk.\""
           , "            , ipv4 = \"192.168.0.87\""
           , "            , desc = \"VirtualBox on Chrome\""
-          , "            , mac= [ \"08:00:27:23:08:43\" ] : Optional Text"
+          , "            , mac= Some \"08:00:27:23:08:43\""
           , "            , comments = [] : List Text"
           , "            }"
           , ""
           , "          , { fqdn = \"cargo.sixears.co.uk.\""
           , "            , ipv4 = \"192.168.0.9\""
           , "            , desc = \"DVR\""
-          , "            , mac  = [ \"e0:cb:4e:ba:be:60\" ] : Optional Text"
+          , "            , mac  = Some \"e0:cb:4e:ba:be:60\""
           , "            , comments = [] : List Text"
           , "            }"
           , "          ]"

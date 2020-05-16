@@ -37,7 +37,7 @@ import Data.Textual  ( Printable( print ), toString )
 -- dhall -------------------------------
 
 import qualified  Dhall  as  D
-import Dhall  ( Interpret( autoWith ), Type )
+import Dhall  ( FromDhall( autoWith ), Decoder )
 
 -- domainnames -------------------------
 
@@ -141,11 +141,11 @@ instance FromJSON HostMap where
 hmHosts ∷ HostMap → [Host]
 hmHosts (HostMap hm) = HashMap.elems hm
 
-hostMapType ∷ Type HostMap
+hostMapType ∷ Decoder HostMap
 hostMapType = let hnKey h = (h ⊣ hname, h)
                in HostMap ∘ __fromList ∘ fmap hnKey ⊳ D.list hostType
 
-instance Interpret HostMap where
+instance FromDhall HostMap where
   autoWith _ = hostMapType
 
 -- that's all, folks! ----------------------------------------------------------

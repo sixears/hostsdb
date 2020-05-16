@@ -42,7 +42,7 @@ import Control.DeepSeq  ( NFData )
 -- dhall -------------------------------
 
 import qualified  Dhall  as  D
-import Dhall  ( Interpret( autoWith ), Type )
+import Dhall  ( FromDhall( autoWith ), Decoder )
 
 -- domainnames -------------------------
 
@@ -147,11 +147,11 @@ instance FromJSON LHostMap where
 lhmHosts ∷ LHostMap → [Host]
 lhmHosts (LHostMap hm) = HashMap.elems hm
 
-hostMapType ∷ Type LHostMap
+hostMapType ∷ Decoder LHostMap
 hostMapType = let localHNKey h = (hostlocal (h ⊣ hname), h)
                in LHostMap ∘ __fromList ∘ fmap localHNKey ⊳ D.list hostType
 
-instance Interpret LHostMap where
+instance FromDhall LHostMap where
   autoWith _ = hostMapType
 
 -- that's all, folks! ----------------------------------------------------------

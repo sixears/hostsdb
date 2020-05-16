@@ -41,7 +41,7 @@ import Control.DeepSeq  ( NFData )
 
 -- dhall -------------------------------
 
-import Dhall  ( Interpret( autoWith ), Type, auto, field, record, strictText )
+import Dhall  ( FromDhall( autoWith ), Decoder, auto, field, record, strictText )
 
 -- domainnames -------------------------
 
@@ -89,7 +89,7 @@ instance Printable HostDesc where
 instance IsString HostDesc where
   fromString = HostDesc ∘ pack
 
-instance Interpret HostDesc where
+instance FromDhall HostDesc where
   autoWith _ = HostDesc ⊳ strictText
 
 ------------------------------------------------------------
@@ -100,7 +100,7 @@ newtype HostComment = HostComment { unHostComment ∷ Text }
 instance Printable HostComment where
   print = print ∘ unHostComment
 
-instance Interpret HostComment where
+instance FromDhall HostComment where
   autoWith _ = HostComment ⊳ strictText
 
 instance IsString HostComment where
@@ -151,14 +151,14 @@ instance Equalish Host where
                                             "MACAddress"     (a ⊣ mac) (b ⊣ mac)
                                      ]
 
-hostType ∷ Type Host
+hostType ∷ Decoder Host
 hostType = record $ Host ⊳ field "fqdn"     auto
                          ⊵ field "ipv4"     auto
                          ⊵ field "desc"     auto
                          ⊵ field "comments" auto
                          ⊵ field "mac"      auto
 
-instance Interpret Host where
+instance FromDhall Host where
   autoWith _ = hostType
 
 instance Printable Host where

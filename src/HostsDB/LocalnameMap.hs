@@ -43,7 +43,7 @@ import Control.DeepSeq  ( NFData )
 
 import qualified  Dhall  as  D
 
-import Dhall  ( Interpret, Type, auto, autoWith, field, record )
+import Dhall  ( FromDhall, Decoder, auto, autoWith, field, record )
 
 -- domainnames -------------------------
 
@@ -127,21 +127,21 @@ instance MonoFoldable LocalnameMap where
 
 data LocalAlias = LocalAlias Localname Localname
 
-localAliasType ∷ Type LocalAlias
+localAliasType ∷ Decoder LocalAlias
 localAliasType = record $ LocalAlias ⊳ field "from" auto
                                      ⊵ field "to"   auto
 
-instance Interpret LocalAlias where
+instance FromDhall LocalAlias where
   autoWith _ = localAliasType
 
 localAliasPair ∷ LocalAlias → (Localname,Localname)
 localAliasPair (LocalAlias aliasFrom aliasTo) = (aliasFrom,aliasTo)
 
-localHostMapType ∷ Type LocalnameMap
+localHostMapType ∷ Decoder LocalnameMap
 localHostMapType =
   LocalnameMap ⊳ __fromList ∘ fmap localAliasPair ⊳ D.list localAliasType
 
-instance Interpret LocalnameMap where
+instance FromDhall LocalnameMap where
   autoWith _ = localHostMapType
 
 instance FromJSON LocalnameMap where
