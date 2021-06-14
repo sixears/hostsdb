@@ -1,12 +1,3 @@
-{-# LANGUAGE FlexibleContexts            #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving  #-}
-{-# LANGUAGE InstanceSigs                #-}
-{-# LANGUAGE LambdaCase                  #-}
-{-# LANGUAGE OverloadedStrings           #-}
-{-# LANGUAGE QuasiQuotes                 #-}
-{-# LANGUAGE TypeFamilies                #-}
-{-# LANGUAGE UnicodeSyntax               #-}
-
 module HostsDB.LocalnameMap
   ( LocalnameMap( LocalnameMap ), LocalNameRelation( lfrom, lto ), unLHMap )
 where
@@ -24,12 +15,17 @@ import Data.Function  ( ($) )
 import Data.Functor   ( fmap )
 import Data.Monoid    ( Monoid )
 import Data.Tuple     ( uncurry )
+import GHC.Generics   ( Generic )
 import Text.Show      ( Show )
 
 -- base-unicode-symbols ----------------
 
 import Data.Function.Unicode  ( (∘) )
 import Data.Monoid.Unicode    ( (∅), (⊕) )
+
+-- containers-plus ---------------------
+
+import ContainersPlus.Map  ( __fromList, fromList )
 
 -- data-textual ------------------------
 
@@ -50,19 +46,18 @@ import Dhall  ( FromDhall, Decoder, auto, autoWith, field, record )
 import DomainNames.Error.LocalnameError  ( LocalnameError )
 import DomainNames.Hostname              ( Localname, parseLocalname' )
 
--- fluffy ------------------------------
-
-import Fluffy.Applicative  ( (⊵) )
-import Fluffy.Functor      ( (⊳) )
-import Fluffy.Map          ( __fromList, fromList )
-import Fluffy.Monad        ( (≫) )
-
 -- mono-traversable --------------------
 
 import Data.MonoTraversable  ( Element
                              , MonoFoldable( ofoldl', ofoldl1Ex', ofoldMap
                                            , ofoldr, ofoldr1Ex )
                              )
+
+-- more-unicode ------------------------
+
+import Data.MoreUnicode.Applicative  ( (⊵) )
+import Data.MoreUnicode.Functor      ( (⊳) )
+import Data.MoreUnicode.Monad        ( (≫) )
 
 -- mtl ---------------------------------
 
@@ -92,7 +87,7 @@ import qualified  Data.Yaml  as  Yaml
 
 newtype LocalnameMap =
     LocalnameMap { unLHMap ∷ HashMap.HashMap Localname Localname }
-  deriving (Eq, NFData, Show)
+  deriving (Eq, Generic, NFData, Show)
 
 data LocalNameRelation =
     LocalNameRelation { lfrom ∷ Localname, lto ∷ Localname }

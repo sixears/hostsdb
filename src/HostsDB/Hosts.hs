@@ -1,10 +1,3 @@
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications  #-}
-{-# LANGUAGE UnicodeSyntax     #-}
-
 module HostsDB.Hosts
   ( Domains( Domains ), HasHosts( hosts ), Hosts( Hosts )
   , aliases, aliasHosts, dnsServers, domains, hostsHosts, hostIPs
@@ -39,6 +32,10 @@ import Data.Monoid.Unicode    ( (⊕) )
 
 import qualified  Data.Map  as  Map
 
+-- containers-plus ---------------------
+
+import ContainersPlus.MapUtils  ( fromListWithDups )
+
 -- deepseq -----------------------------
 
 import Control.DeepSeq  ( NFData )
@@ -48,29 +45,34 @@ import Control.DeepSeq  ( NFData )
 import qualified  Dhall  as  D
 import Dhall  ( FromDhall( autoWith ), auto, field, record )
 
+-- dhall-plus --------------------------
+
+import DhallPlus        ( parseFile )
+import DhallPlus.Error  ( AsDhallError, DhallIOError )
+
 -- domainnames -------------------------
 
 import DomainNames.FQDN      ( FQDN )
 import DomainNames.Hostname  ( Hostname, Localname, filterWL )
 
--- fluffy ------------------------------
+-- fpath -------------------------------
 
-import Fluffy.Applicative  ( (⊵) )
-import Fluffy.Containers.NonEmptyHashSet
-                           ( NonEmptyHashSet )
-import Fluffy.Dhall        ( parseFile )
-import Fluffy.Dhall.Error  ( AsDhallError, DhallIOError )
-import Fluffy.ErrTs        ( ErrTs )
-import Fluffy.Functor      ( (⊳) )
-import Fluffy.IO.Error     ( AsIOError )
-import Fluffy.IP4          ( IP4 )
-import Fluffy.MapUtils     ( fromListWithDups )
-import Fluffy.MonadError   ( mapMError )
+import FPath.AsFilePath  ( AsFilePath )
+import FPath.File        ( FileAs )
+
+-- ip4 ---------------------------------
+
+import IP4  ( IP4 )
 
 -- lens --------------------------------
 
 import Control.Lens.Getter  ( view )
 import Control.Lens.Lens    ( Lens', lens )
+
+-- monaderror-io -----------------------
+
+import MonadError           ( mapMError )
+import MonadError.IO.Error  ( AsIOError )
 
 -- mtl ---------------------------------
 
@@ -78,12 +80,15 @@ import Control.Monad.Except  ( MonadError )
 
 -- more-unicode ------------------------
 
-import Data.MoreUnicode.Lens    ( (⊣) )
-import Data.MoreUnicode.Monoid  ( ю )
+import Data.MoreUnicode.Applicative  ( (⊵) )
+import Data.MoreUnicode.Functor      ( (⊳) )
+import Data.MoreUnicode.Lens         ( (⊣) )
+import Data.MoreUnicode.Monoid       ( ю )
+import Data.MoreUnicode.Text         ( 𝕋 )
 
--- path --------------------------------
+-- non-empty-containers ----------------
 
-import Path  ( File, Path )
+import NonEmptyContainers.NonEmptyHashSet  ( NonEmptyHashSet )
 
 -- unordered-containers ----------------
 
@@ -221,7 +226,7 @@ aliasHosts hs =
      that share an IP with α; and additionally return errors for (other)
      duplicates and missing IPs, etc.
  -}
-hostIPs ∷ Hosts → ([(Hostname,IP4)],ErrTs)
+hostIPs ∷ Hosts → ([(Hostname,IP4)],[𝕋])
 hostIPs hs =
   let dupIPHosts ∷ Map.Map IP4 (NonEmptyHashSet Hostname)
       hostsByIP  ∷ Map.Map IP4 Hostname
@@ -234,14 +239,19 @@ hostIPs hs =
 
 ----------------------------------------
 
-loadFile ∷ (AsDhallError ε, AsIOError ε, MonadError ε μ, MonadIO μ) ⇒
-           Path β File -> μ Hosts
+loadFile ∷ ∀ ε γ μ .
+           (MonadIO μ, AsDhallError ε, AsIOError ε, MonadError ε μ,
+            FileAs γ, AsFilePath γ) ⇒
+           γ -> μ Hosts
 
-loadFile = parseFile @_ @_ @Hosts
+loadFile = parseFile -- @_ @_ @_ @Hosts
 
 --------------------
 
-loadFile' ∷ (MonadError DhallIOError μ, MonadIO μ) ⇒ Path β File -> μ Hosts
+{-# DEPRECATED loadFile' "use loadFile @DhallIOError" #-}
+loadFile' ∷ forall γ μ .
+            (MonadIO μ, MonadError DhallIOError μ, FileAs γ, AsFilePath γ) ⇒
+            γ -> μ Hosts
 loadFile' = loadFile
 
 -- that's all, folks! ----------------------------------------------------------

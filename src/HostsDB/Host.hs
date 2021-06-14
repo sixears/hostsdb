@@ -6,7 +6,7 @@
 
 module HostsDB.Host
   ( Host( Host ), HostComment( HostComment ), HostDesc( HostDesc )
-  , comments, desc, hname, hostType, ipv4 )
+  , comments, desc, hname, hostType, ipv4, leftFail, returnPair )
 where
 
 -- aeson -------------------------------
@@ -17,6 +17,8 @@ import Data.Aeson  ( FromJSON )
 
 import qualified  Data.List  as  List
 
+import Control.Monad       ( Monad, MonadFail( fail ), return )
+import Data.Either         ( Either, either )
 import Data.Eq             ( Eq )
 import Data.Function       ( ($) )
 import Data.List.NonEmpty  ( nonEmpty )
@@ -33,7 +35,7 @@ import Data.Monoid.Unicode    ( (⊕) )
 
 -- data-textual ------------------------
 
-import Data.Textual  ( Printable( print ), toText )
+import Data.Textual  ( Printable( print ), toString, toText )
 
 -- deepseq -----------------------------
 
@@ -47,14 +49,17 @@ import Dhall  ( FromDhall( autoWith ), Decoder, auto, field, record, strictText 
 
 import DomainNames.Hostname  ( Hostname )
 
--- fluffy ------------------------------
+-- equalish ----------------------------
 
-import Fluffy.Applicative  ( (⊵) )
-import Fluffy.Equalish     ( Equalish( (≏) ) )
-import Fluffy.Functor      ( (⊳) )
-import Fluffy.IP4          ( IP4 )
-import Fluffy.MACAddress   ( MACAddress )
-import Fluffy.Printable    ( parenthesize )
+import Equalish  ( Equalish( (≏) ) )
+
+-- ip4 ---------------------------------
+
+import IP4  ( IP4 )
+
+-- mac-address -------------------------
+
+import MACAddress  ( MACAddress )
 
 -- lens --------------------------------
 
@@ -62,7 +67,10 @@ import Control.Lens.Lens  ( Lens', lens )
 
 -- more-unicode ------------------------
 
-import Data.MoreUnicode.Lens  ( (⊣) )
+import Data.MoreUnicode.Applicative  ( (⊵) )
+import Data.MoreUnicode.Functor      ( (⊳) )
+import Data.MoreUnicode.Lens         ( (⊣) )
+import Data.MoreUnicode.Monad        ( (≫) )
 
 -- text --------------------------------
 
@@ -74,11 +82,25 @@ import Data.Text  ( Text, intercalate, pack )
 
 import qualified  Text.Printer  as  P
 
+-- textual-plus ------------------------
+
+import TextualPlus  ( parenthesize )
+
 -- tfmt --------------------------------
 
 import Text.Fmt  ( fmt, fmtT )
 
 --------------------------------------------------------------------------------
+
+returnPair ∷ Monad η ⇒ (η α, η β) → η (α,β)
+returnPair (a,b) = a ≫ \ a' → b ≫ \ b' → return (a',b')
+
+----------------------------------------
+
+leftFail ∷ (Printable ε, MonadFail η) ⇒ Either ε α → η α
+leftFail = either (fail ∘ toString) return
+
+------------------------------------------------------------
 
 newtype HostDesc = HostDesc { unHostDesc ∷ Text }
   deriving (Eq, FromJSON, Generic, NFData, Show)

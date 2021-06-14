@@ -23,16 +23,29 @@ import qualified  Dhall  as  D
 
 import Dhall  ( auto )
 
--- fluffy ------------------------------
+-- equalish ----------------------------
 
-import Fluffy.Equalish    ( (≏) )
-import Fluffy.IP4         ( ip4 )
-import Fluffy.MACAddress  ( macAddress )
-import Fluffy.Tasty       ( (≟), ioTests, runTestsP_, withResource' )
+import Equalish ( (≏) )
+
+-- ip4 ---------------------------------
+
+import IP4 ( ip4 )
+
+-- mac-address -------------------------
+
+import MACAddress  ( macAddress )
 
 -- tasty -------------------------------
 
 import Test.Tasty  ( TestTree, defaultMain, testGroup )
+
+-- tasty-hunit -------------------------
+
+import Test.Tasty.HUnit  ( (@=?) )
+
+-- tasty-plus --------------------------
+
+import TastyPlus  ( ioTests, runTestsP_, withResource' )
 
 -- text --------------------------------
 
@@ -63,7 +76,7 @@ chrome = Host [hostname|chrome.sixears.co.uk.|]
               (Just [macAddress|fc:aa:14:87:cc:a2|])
 
 chromeTxtTest ∷ IO Host → TestTree
-chromeTxtTest =  ioTests "chromeTxt" [ ("chrome", \ h → Nothing ≟ chrome ≏ h) ]
+chromeTxtTest =  ioTests "chromeTxt" [ ("chrome", \ h → Nothing @=? chrome ≏ h) ]
 
 tests ∷ TestTree
 tests =

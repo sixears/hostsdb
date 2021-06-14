@@ -17,7 +17,6 @@ import System.IO      ( IO )
 -- base-unicode-symbols ----------------
 
 import Data.Function.Unicode  ( (∘) )
-import Data.Monoid.Unicode    ( (⊕) )
 
 -- dhall -------------------------------
 
@@ -30,16 +29,17 @@ import Dhall  ( auto )
 import DomainNames.FQDN      ( fqdn )
 import DomainNames.Hostname  ( hostname, localname )
 
--- fluffy ------------------------------
+-- ip4 ------------------------------
 
-import Fluffy.Functor     ( (⊳) )
-import Fluffy.IP4         ( ip4 )
-import Fluffy.MACAddress  ( macAddress )
-import Fluffy.Tasty       ( assertListEqIO, runTestsP_, withResource' )
+import IP4         ( ip4 )
 
 -- lens --------------------------------
 
 import Control.Lens.Getter  ( view )
+
+-- mac-address -------------------------
+
+import MACAddress  ( macAddress )
 
 -- mono-traversable --------------------
 
@@ -47,8 +47,9 @@ import Data.MonoTraversable  ( otoList )
 
 -- more-unicode ------------------------
 
-import Data.MoreUnicode.Lens   ( (⊣) )
-import Data.MoreUnicode.Monad  ( (≫) )
+import Data.MoreUnicode.Functor  ( (⊳) )
+import Data.MoreUnicode.Lens     ( (⊣) )
+import Data.MoreUnicode.Monad    ( (≫) )
 
 -- tasty -------------------------------
 
@@ -60,7 +61,7 @@ import Test.Tasty.HUnit  ( testCase )
 
 -- tasty-plus --------------------------
 
-import TastyPlus  ( (≟) )
+import TastyPlus  ( (≟), assertListEqIO, runTestsP_, withResource' )
 
 -- text --------------------------------
 
@@ -99,7 +100,7 @@ hostsTestHosts =
                                                , ([localname|cargo|] , cargo)
                                                ]
    in Hosts (Domains [fqdn|sixears.co.uk.|] [fqdn|0.168.192.in-addr.arpa.|])
-            expHostMap 
+            expHostMap
             [ [localname|cargo|], [localname|chrome|] ]
             [ [localname|cargo|] ]
             (LocalnameMap $ HashMap.fromList
@@ -108,7 +109,7 @@ hostsTestHosts =
                , ([localname|cvs|]     , [localname|chrome|])
                ]
             )
-  
+
 hostsTestText ∷ Text
 hostsTestText =
   unlines [ "{ domains = { sub_domain = \"sixears.co.uk.\""
@@ -151,19 +152,19 @@ dhallTests' hs =
                            , testCase "in-addr" $
                                hs ≫ \hs' →   hostsTestHosts ⊣ inAddr
                                            ≟ hs' ⊣ inAddr
+                           , assertListEqIO "aliases"
+                                            (otoList $ hostsTestHosts ⊣ aliases)
+                                            (otoList ∘ view aliases ⊳ hs)
+                           , assertListEqIO "dnsServers"
+                                            (hostsTestHosts ⊣ dnsServers)
+                                            (view dnsServers ⊳ hs)
+                           , assertListEqIO "mailServers"
+                                            (hostsTestHosts ⊣ mailServers)
+                                            (view mailServers ⊳ hs)
+                           , assertListEqIO "hosts"
+                                            (otoList $ hostsTestHosts ⊣ lhostmap)
+                                            (otoList ∘ view lhostmap ⊳ hs)
                            ]
-                         ⊕ assertListEqIO "aliases"
-                                              (otoList $ hostsTestHosts ⊣ aliases)
-                                              (otoList ∘ view aliases ⊳ hs)
-                         ⊕ assertListEqIO "dnsServers"
-                                              (hostsTestHosts ⊣ dnsServers)
-                                              (view dnsServers ⊳ hs)
-                         ⊕ assertListEqIO "mailServers"
-                                              (hostsTestHosts ⊣ mailServers)
-                                              (view mailServers ⊳ hs)
-                         ⊕ assertListEqIO "hosts"
-                                           (otoList $ hostsTestHosts ⊣ lhostmap)
-                                           (otoList ∘ view lhostmap ⊳ hs)
 dhallTests ∷ TestTree
 dhallTests = withResource' (D.input auto hostsTestText) dhallTests'
 

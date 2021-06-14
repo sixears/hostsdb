@@ -7,7 +7,7 @@
 
 module HostsDB.HostMap
   ( HostMap( HostMap ), HostRelation( HostRelation, hrkey, hrvalue )
-  , hmHosts, unHostMap )
+  , hmHosts, leftFail, returnPair, unHostMap )
 where
 
 -- aeson -------------------------------
@@ -30,6 +30,10 @@ import Text.Show      ( Show )
 import Data.Function.Unicode  ( (∘) )
 import Data.Monoid.Unicode    ( (∅), (⊕) )
 
+-- containers-plus ---------------------
+
+import ContainersPlus.Map  ( __fromList, fromList )
+
 -- data-textual ------------------------
 
 import Data.Textual  ( Printable( print ), toString )
@@ -43,14 +47,6 @@ import Dhall  ( FromDhall( autoWith ), Decoder )
 
 import DomainNames.Hostname  ( Hostname, parseHostname' )
 
--- fluffy ------------------------------
-
-import Fluffy.Either    ( leftFail )
-import Fluffy.Foldable  ( HasLength( length ) )
-import Fluffy.Functor   ( (⊳) )
-import Fluffy.Map       ( __fromList, fromList )
-import Fluffy.Monad     ( (≫), returnPair )
-
 -- mono-traversable --------------------
 
 import Data.MonoTraversable  ( Element
@@ -60,7 +56,9 @@ import Data.MonoTraversable  ( Element
 
 -- more-unicode ------------------------
 
-import Data.MoreUnicode.Lens  ( (⊣) )
+import Data.MoreUnicode.Functor  ( (⊳) )
+import Data.MoreUnicode.Lens     ( (⊣) )
+import Data.MoreUnicode.Monad    ( (≫) )
 
 -- text --------------------------------
 
@@ -86,15 +84,12 @@ import qualified  Data.Yaml  as  Yaml
 --                     local imports                      --
 ------------------------------------------------------------
 
-import HostsDB.Host  ( Host, hname, hostType )
+import HostsDB.Host  ( Host, hname, hostType, leftFail, returnPair )
 
 --------------------------------------------------------------------------------
 
 newtype HostMap = HostMap { unHostMap ∷ HashMap.HashMap Hostname Host }
   deriving (Eq, Show)
-
-instance HasLength HostMap where
-  length = length ∘ unHostMap
 
 data HostRelation = HostRelation { hrkey ∷ Hostname, hrvalue ∷ Host }
   deriving Eq

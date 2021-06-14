@@ -36,9 +36,9 @@ import DomainNames.Error.DomainError  ( AsDomainError( _DomainError )
                                       , DomainError )
 import DomainNames.Hostname           ( Localname )
 
--- fluffy ------------------------------
+-- monaderror-io -----------------------
 
-import Fluffy.IO.Error  ( AsIOError( _IOError ) )
+import MonadError.IO.Error  ( AsIOError( _IOError ) )
 
 -- lens --------------------------------
 
@@ -100,7 +100,7 @@ aliasNotFound a e =
   case e ⩼ _HostsError  of
     Just (LocalnameNotFoundError l) → _HostsError # DanglingAlias a l
     _                               → e
-                      
+
 
 instance AsHostsError HostsError where
   _HostsError = id

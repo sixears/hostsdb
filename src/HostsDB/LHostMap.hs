@@ -1,11 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE InstanceSigs               #-}
-{-# LANGUAGE LambdaCase                 #-}
-{-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE QuasiQuotes                #-}
-{-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE UnicodeSyntax              #-}
-
 module HostsDB.LHostMap
   ( LHostMap( LHostMap ), LocalHostRelation( LocalHostRelation, lname, lhost )
   , lhmHosts, unLHostMap )
@@ -24,12 +16,17 @@ import Data.Function  ( ($) )
 import Data.Functor   ( fmap )
 import Data.Monoid    ( Monoid )
 import Data.Tuple     ( uncurry )
+import GHC.Generics   ( Generic )
 import Text.Show      ( Show )
 
 -- base-unicode-symbols ----------------
 
 import Data.Function.Unicode  ( (∘) )
 import Data.Monoid.Unicode    ( (∅), (⊕) )
+
+-- containers-plus ---------------------
+
+import ContainersPlus.Map  ( __fromList, fromList )
 
 -- data-textual ------------------------
 
@@ -48,14 +45,6 @@ import Dhall  ( FromDhall( autoWith ), Decoder )
 
 import DomainNames.Hostname  ( Localname, hostlocal, parseLocalname' )
 
--- fluffy ------------------------------
-
-import Fluffy.Either    ( leftFail )
-import Fluffy.Foldable  ( HasLength( length ) )
-import Fluffy.Functor   ( (⊳) )
-import Fluffy.Map       ( __fromList, fromList )
-import Fluffy.Monad     ( (≫), returnPair )
-
 -- mono-traversable --------------------
 
 import Data.MonoTraversable  ( Element
@@ -65,7 +54,9 @@ import Data.MonoTraversable  ( Element
 
 -- more-unicode ------------------------
 
-import Data.MoreUnicode.Lens  ( (⊣) )
+import Data.MoreUnicode.Functor   ( (⊳) )
+import Data.MoreUnicode.Lens      ( (⊣) )
+import Data.MoreUnicode.Monad     ( (≫) )
 
 -- text --------------------------------
 
@@ -91,15 +82,12 @@ import qualified  Data.Yaml  as  Yaml
 --                     local imports                      --
 ------------------------------------------------------------
 
-import HostsDB.Host  ( Host, hname, hostType )
+import HostsDB.Host  ( Host, hname, hostType, leftFail, returnPair )
 
 --------------------------------------------------------------------------------
 
 newtype LHostMap = LHostMap { unLHostMap ∷ HashMap.HashMap Localname Host }
-  deriving (Eq, NFData, Show)
-
-instance HasLength LHostMap where
-  length = length ∘ unLHostMap
+  deriving (Eq, Generic, NFData, Show)
 
 data LocalHostRelation = LocalHostRelation { lname ∷ Localname, lhost ∷ Host }
   deriving Eq
