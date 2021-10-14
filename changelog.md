@@ -1,3 +1,11 @@
+0.1.1.1 2021-10-11
+==================
+- requirements upgrades, including dhall-plus >= 0.0.2.1
+
+0.1.1.0 2021-06-18
+==================
+- add HasCallstack to errors
+
 0.1.0.2 2021-06-14
 ==================
 - no more fluffy

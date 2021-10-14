@@ -7,7 +7,7 @@ name:                hostsdb
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.1.0.2
+version:             0.1.1.1
 
 -- A short (one-line) description of the package.
 synopsis:            hosts info as a single configuration
@@ -62,6 +62,7 @@ library
                     , LambdaCase
                     , NoImplicitPrelude
                     , OverloadedStrings
+                    , PatternSynonyms
                     , QuasiQuotes
                     , RankNTypes
                     , TypeApplications
@@ -78,18 +79,19 @@ library
                     , path, tasty, tasty-hunit, text, text-printer
                     , unordered-containers, yaml
 
-                    , containers-plus      >= 0.0.1.1
-                    , dhall-plus           >= 0.0.0.0
-                    , domainnames          >= 0.1.0.2
+                    , containers-plus      >= 0.0.4.0
+                    , dhall-plus           >= 0.0.2.1
+                    , domainnames          >= 0.1.1.1
                     , equalish             >= 0.0.0.0
-                    , fpath                >= 1.1.4.2
-                    , ip4                  >= 0.0.0.0
-                    , mac-address          >= 0.0.0.1
-                    , monaderror-io        >= 1.1.0.1
-                    , more-unicode         >= 0.0.15.0
-                    , non-empty-containers >= 1.4.1.0
-                    , proclib              >= 3.2.0.0
-                    , tasty-plus           >= 1.5.0.1
+                    , fpath                >= 1.2.0.0
+                    , has-callstack        >= 1.0.1.0
+                    , ip4                  >= 0.0.0.1
+                    , mac-address          >= 0.0.0.2
+                    , monaderror-io        >= 1.2.0.0
+                    , more-unicode         >= 0.0.16.0
+                    , non-empty-containers >= 1.4.2.0
+                    , proclib              >= 3.2.3.2
+                    , tasty-plus           >= 1.5.1.0
                     , textual-plus         >= 1.0.2.0
                     , tfmt                 >= 0.2.4.0
 
