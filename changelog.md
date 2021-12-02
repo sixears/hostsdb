@@ -1,3 +1,7 @@
+0.1.1.2 2021-12-02
+==================
+- handle containers-plus change to enforce RepeatedKeyError
+
 0.1.1.1 2021-10-11
 ==================
 - requirements upgrades, including dhall-plus >= 0.0.2.1

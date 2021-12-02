@@ -26,7 +26,7 @@ import Data.Monoid.Unicode    ( (∅), (⊕) )
 
 -- containers-plus ---------------------
 
-import ContainersPlus.Map  ( __fromList, fromList )
+import ContainersPlus.Map  ( RepeatedKeyError, __fromList, fromList )
 
 -- data-textual ------------------------
 
@@ -127,7 +127,7 @@ instance FromJSON LHostMap where
           returnPair (leftFail $ parseLocalname' k, parseJSON v)
         go (k,invalid)      =
           typeMismatch (unpack $ "Host: '" ⊕ k ⊕ "'") invalid
-     in fromList ⊳ mapM go (HashMap.toList hm) ≫ \ case
+     in fromList @(RepeatedKeyError Localname) ⊳ mapM go (HashMap.toList hm) ≫ \ case
           Left  dups → fail $ toString dups
           Right hm'  → return $ LHostMap hm'
   parseJSON invalid = typeMismatch "host map" invalid
