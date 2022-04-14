@@ -1,3 +1,7 @@
+0.1.1.3 2022-04-14
+==================
+- upgrade dependencies
+
 0.1.1.2 2021-12-02
 ==================
 - handle containers-plus change to enforce RepeatedKeyError
