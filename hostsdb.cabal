@@ -7,7 +7,7 @@ name:                hostsdb
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.1.1.3
+version:             0.1.1.4
 
 -- A short (one-line) description of the package.
 synopsis:            hosts info as a single configuration

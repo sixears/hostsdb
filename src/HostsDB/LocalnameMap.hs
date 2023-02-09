@@ -4,19 +4,22 @@ where
 
 -- aeson -------------------------------
 
-import Data.Aeson.Types  ( FromJSON, Value( Object, String ), typeMismatch )
+import Data.Aeson.Key     ( toText )
+import Data.Aeson.KeyMap  ( KeyMap, toList )
+import Data.Aeson.Types   ( FromJSON, Value( Object, String ), typeMismatch )
 
 -- base --------------------------------
 
-import Control.Monad  ( fail, mapM, return )
-import Data.Either    ( Either( Left, Right ), either )
-import Data.Eq        ( Eq )
-import Data.Function  ( ($) )
-import Data.Functor   ( fmap )
-import Data.Monoid    ( Monoid )
-import Data.Tuple     ( uncurry )
-import GHC.Generics   ( Generic )
-import Text.Show      ( Show )
+import Control.Monad   ( fail, mapM, return )
+import Data.Bifunctor  ( first )
+import Data.Either     ( Either( Left, Right ), either )
+import Data.Eq         ( Eq )
+import Data.Function   ( ($) )
+import Data.Functor    ( fmap )
+import Data.Monoid     ( Monoid )
+import Data.Tuple      ( uncurry )
+import GHC.Generics    ( Generic )
+import Text.Show       ( Show )
 
 -- base-unicode-symbols ----------------
 
@@ -150,7 +153,10 @@ instance FromJSON LocalnameMap where
         go (k,String v) = either (fail ∘ toString) return $ go' (k,v)
         go (k,invalid)  =
           typeMismatch (unpack $ "local host name: '" ⊕ k ⊕ "'") invalid
-     in fromList @(RepeatedKeyError Localname) ⊳ (mapM go $ HashMap.toList hm) ≫ \ case
+        toListT ∷ KeyMap Value → [(Text,Value)]
+        toListT km = first toText ⊳ toList km
+
+     in fromList @(RepeatedKeyError Localname) ⊳ (mapM go $ toListT hm) ≫ \ case
           Left dups → fail $ toString dups
           Right hm' → return $ LocalnameMap hm'
   parseJSON invalid     = typeMismatch "local host map" invalid

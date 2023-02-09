@@ -12,18 +12,21 @@ where
 
 -- aeson -------------------------------
 
-import Data.Aeson.Types  ( FromJSON, Value( Object ), parseJSON, typeMismatch )
+import Data.Aeson.Key     ( toText )
+import Data.Aeson.KeyMap  ( KeyMap, toList )
+import Data.Aeson.Types   ( FromJSON, Value( Object ), parseJSON, typeMismatch )
 
 -- base --------------------------------
 
-import Control.Monad  ( fail, mapM, return )
-import Data.Either    ( Either( Left, Right ) )
-import Data.Eq        ( Eq )
-import Data.Function  ( ($) )
-import Data.Functor   ( fmap )
-import Data.Monoid    ( Monoid )
-import Data.Tuple     ( uncurry )
-import Text.Show      ( Show )
+import Control.Monad   ( fail, mapM, return )
+import Data.Bifunctor  ( first )
+import Data.Either     ( Either( Left, Right ) )
+import Data.Eq         ( Eq )
+import Data.Function   ( ($) )
+import Data.Functor    ( fmap )
+import Data.Monoid     ( Monoid )
+import Data.Tuple      ( uncurry )
+import Text.Show       ( Show )
 
 -- base-unicode-symbols ----------------
 
@@ -128,7 +131,10 @@ instance FromJSON HostMap where
         go (k,v@(Object _)) = returnPair (leftFail $ parseHostname' k, parseJSON v)
         go (k,invalid)  =
           typeMismatch (unpack $ "Host: '" ⊕ k ⊕ "'") invalid
-     in fromList @(RepeatedKeyError Hostname) ⊳ mapM go (HashMap.toList hm) ≫ \ case
+        toListT ∷ KeyMap Value → [(Text,Value)]
+        toListT km = first toText ⊳ toList km
+
+     in fromList @(RepeatedKeyError Hostname) ⊳ mapM go (toListT hm) ≫ \ case
           Left  dups → fail $ toString dups
           Right hm'  → return $ HostMap hm'
   parseJSON invalid = typeMismatch "host map" invalid
